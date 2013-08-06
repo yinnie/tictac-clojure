@@ -2,9 +2,7 @@
 
 
 (defn full? [board]
-  (cond
-    (not-any? #{0} board) true
-    :else false))
+  (not-any? #{0} board))
 
 (defn sel-three [v x y z]
   (vector (nth v x) (nth v y) (nth v z)))
