@@ -20,10 +20,7 @@
     (vector diagnl1 diagnl2 vert1 vert2 vert3 hor1 hor2 hor3)))
 
 (defn same? [triplet]
-  (cond
-    (every? #{2} triplet) true
-    (every? #{1} triplet) true
-    :else false))
+  (or (every? #{1} triplet) (every? #{2} triplet)))
 
 (defn contain-same? [triples]
   (let [results
