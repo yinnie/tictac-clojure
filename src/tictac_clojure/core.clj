@@ -27,6 +27,12 @@
         (for [t triples] (same? t))]
     (contains? (set results) true)))
 
+;; A possibly simpler alternative, but I don't know if first/rest
+;; convert vectors into lists. Also it craps out on the empty
+;; list, so a conditional here or in 'same?' is necessary.
+;; (defn contain-same? [triples]
+;;   (or (same? (first triples)) (contain-same? (rest triples))))
+
 (defn win? [board]
   (let [triples (make-triples board)]
     (contain-same? triples)))
