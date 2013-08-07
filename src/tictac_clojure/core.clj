@@ -1,11 +1,6 @@
 (ns tictac-clojure.core)
 
 
-(defn full? [board] 
-  (cond
-    (not-any? #{0} board) true
-    :else false))
-
 (defn sel-three [v x y z]
   (vector (nth v x) (nth v y) (nth v z)))
 
@@ -42,9 +37,8 @@
         (let [filtered (filter #(= 0 (second %)) indexed)]
               (map first filtered))))
 
-(defn tie? [board]
-  (if (empty? (empty-cells board)) true false))
-
+(defn tie? [board] 
+  (if (not-any? #{0} board) true false))
 
 (defn choose-rand [board sym]
   (let [cells (empty-cells board)]
@@ -73,38 +67,45 @@
        (for [cell cells]
          (assoc board cell sym)))) 
 
-(defn max-board [eval-fn boards] 
-  ;;like max-key.  
+(defn max-val-pair [eval-fn pairs] 
   (reduce (fn [x y] 
             (let [xval (eval-fn x) 
                   yval (eval-fn y)]  
                     (if (> yval xval) y x)))
-           boards))
+           pairs))
 
-(defn min-board [eval-fn boards] 
+(defn min-val-pair [eval-fn pairs] 
   (reduce (fn [x y] 
             (let [xval (eval-fn x) 
                   yval (eval-fn y)]  
                     (if (< yval xval) y x)))
-           boards))
+           pairs))
 
-(defn minimax [sym depth]
-  (fn [board]
-    (cond
-      (end? board) (leaf-val board)
-      :else (let [boards (get-poss-boards board sym)]
-                 (case sym 
-                    1 (max-board (minimax 2 (inc depth)) boards)
-                    2 (min-board (minimax 1 (inc depth)) boards)))))) 
+(defn flip-sym [sym]
+  (if (= sym 1) 2 1))
+
+(defn minimax [board sym depth]
+  (cond
+    (end? board) (leaf-val board)
+    :else (let [boards (get-poss-boards board sym)
+                make-pair (fn [board] 
+                           [board (minimax board (flip-sym sym) (inc depth))])
+                pairs (map make-pair boards)]
+             (case sym
+              1 (let [max-pair (max-val-pair second pairs)]
+                  (if (= depth 0) (first max-pair) (second max-pair)))
+              2 (let [min-pair (min-val-pair second pairs)]
+                  (if (= depth 0) (first min-pair) (second min-pair))))))) 
 
 (defn computer [board sym]
   ;;sym -> player symbol either 1 or 2
-  ((minimax sym 0) board))
- ; stupid AI:
- ;(choose-rand board sym))
+  (cond
+    (win? board) "you won!!"
+    (tie? board) "it's a tie!"
+    :else (minimax board sym 0)))
 
 (defn valid? [input board]
-  (let [s (read-string input)]
+  (let [s (dec (read-string input))]
        (and (number? s)
             (contains? (set (empty-cells board)) s))))  
 
@@ -112,7 +113,7 @@
   (println "enter a number between 1 and 9 inclusive")
   (let [s (read-line)]
        (cond 
-          (valid? s board) (read-string s) 
+          (valid? s board) (dec (read-string s)) 
           :else "oops invalid input. try again")))
 
 (defn human [board sym]
@@ -133,10 +134,10 @@
   (display (to-str board))
   (cond
       (win? board) "you won!!"
-      (tie? board) "it's a tie"
-      :else (let [curboard (computer board 1)]
+      (tie? board) "it's a tie!"
+      :else (let [curboard (human board 2)]
                (display (to-str curboard))
-               (recur (human curboard 2)))))
+               (recur (computer curboard 1)))))
 
 (defn -main []
   (play [0 0 0 0 0 0 0 0 0]))
