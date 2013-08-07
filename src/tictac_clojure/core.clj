@@ -5,7 +5,7 @@
   (vector (nth v x) (nth v y) (nth v z)))
 
 (defn make-triples [board]
-  ;;turn the board vector into combinations of winning pos
+  ;turn the board into combinations of winning pos
   (let [diagnl1 (sel-three board 0 4 8) 
         diagnl2 (sel-three board 2 4 6)
         vert1   (sel-three board 0 3 6)
@@ -32,7 +32,7 @@
        (contain-same? triples)))
 
 (defn empty-cells [board]
-  ;;indices of board that are empty
+  ;indices of board that are empty
   (let [indexed (map-indexed vector board)]
         (let [filtered (filter #(= 0 (second %)) indexed)]
               (map first filtered))))
@@ -98,7 +98,7 @@
                   (if (= depth 0) (first min-pair) (second min-pair))))))) 
 
 (defn computer [board sym]
-  ;;sym -> player symbol either 1 or 2
+  ;;sym -> player symbol. 1 for computer 
   (cond
     (win? board) "you won!!"
     (tie? board) "it's a tie!"
@@ -117,7 +117,7 @@
           :else "oops invalid input. try again")))
 
 (defn human [board sym]
-  ;;sym -> player symbol either 1 or 2
+  ;;sym -> player symbol. 2 for human
   (let [cell (input board)]
        (cond
          (not (number? cell)) (human board sym)
